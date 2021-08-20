@@ -76,8 +76,9 @@ void SequentialChudnovskyAlgorithm(mpfr_t pi, int num_iterations){
         gettimeofday(&t1, NULL);
         ChudnovskyIteration(pi, i, dep_a, dep_b, dep_c, aux);
         //Update dep_a:
-        factor_a = 12 * i;
-        mpfr_set_ui(dep_a_dividend, factor_a + 10, MPFR_RNDN); //ESTO ES UN SOBRECOSTE BRUTAL!!
+        factor_a = (12 * i);
+        mpfr_set_ui(dep_a_dividend, factor_a + 10, MPFR_RNDN); //ESTO ES UN SOBRECOSTE BRUTAL (ES POR EL + 10)???!!
+        
         mpfr_mul_ui(dep_a_dividend, dep_a_dividend, factor_a + 6, MPFR_RNDN);
         mpfr_mul_ui(dep_a_dividend, dep_a_dividend, factor_a + 2, MPFR_RNDN);
         mpfr_mul(dep_a_dividend, dep_a_dividend, dep_a, MPFR_RNDN);
@@ -94,7 +95,7 @@ void SequentialChudnovskyAlgorithm(mpfr_t pi, int num_iterations){
         
         gettimeofday(&t2, NULL);
         execution_time = ((t2.tv_sec - t1.tv_sec) * 1000000u +  t2.tv_usec - t1.tv_usec)/1.e3; 
-        printf(" %f \n", execution_time);
+        //printf(" %f \n", execution_time);
 
     }
     printf("Iterations done: %d\n", i);

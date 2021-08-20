@@ -45,6 +45,7 @@ void BBPAlgorithm(int num_threads, int precision){
     mpfr_set_default_prec(precision * 8); 
     mpfr_t pi;
     mpfr_init_set_ui(pi, 0, MPFR_RNDN);
+
     int num_iterations = precision * 0.84;
     
     if(num_threads <= 1){ 

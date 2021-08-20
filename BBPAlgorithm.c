@@ -107,6 +107,9 @@ void ParallelBBPAlgorithm(mpfr_t pi, int num_iterations, int num_threads){
         block_size = (num_iterations + num_threads - 1) / num_threads;
         block_start = thread_id * block_size;
         block_end = (thread_id == num_threads - 1) ? num_iterations : block_start + block_size;
+        #pragma omp critical
+        printf("Soy TH%d, size:%d, ini:%d, fin:%d. \n", thread_id, block_size, block_start, block_end);
+
         mpfr_init_set_ui(local_pi, 0, MPFR_RNDN);               // private thread pi
         mpfr_init(dep_m);
         mpfr_pow_ui(dep_m, quotient, block_start, MPFR_RNDN);    // m = (1/16)^n                  
@@ -123,6 +126,9 @@ void ParallelBBPAlgorithm(mpfr_t pi, int num_iterations, int num_threads){
         //Second Phase -> Accumulate the result in the global variable
         #pragma omp critical
         mpfr_add(pi, pi, local_pi, MPFR_RNDN);
+
+        #pragma omp critical
+        mpfr_printf("Soy TH%d, Pi_local:%Re \n", thread_id, local_pi);
 
         //Clear thread memory
         mpfr_clears(local_pi, dep_m, quot_a, quot_b, quot_c, quot_d, aux, NULL);   
