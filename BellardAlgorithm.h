@@ -2,7 +2,7 @@
 #define BELLARD_ALGORITHM
 
 void SequentialBellardAlgorithm(mpfr_t, int);
-void ParallelBellardAlgorithm(mpfr_t, int, int);
+void ParallelBellardAlgorithm(mpfr_t, int, int, int);
 
 #endif
 

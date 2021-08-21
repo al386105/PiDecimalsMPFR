@@ -78,6 +78,7 @@ void SequentialBBPAlgorithm(mpfr_t pi, int num_iterations){
         BBPIteration(pi, i, dep_m, quot_a, quot_b, quot_c, quot_d, aux);   
         // Update dependencies:  
         mpfr_mul(dep_m, dep_m, quotient, MPFR_RNDN);
+
     }
 
     mpfr_clears(dep_m, quotient, quot_a, quot_b, quot_c, quot_d, aux, NULL);
@@ -90,7 +91,7 @@ void SequentialBBPAlgorithm(mpfr_t pi, int num_iterations){
  * so each thread calculates a part of Pi.  
  */
 
-void ParallelBBPAlgorithm(mpfr_t pi, int num_iterations, int num_threads){
+void ParallelBBPAlgorithm(mpfr_t pi, int num_iterations, int num_threads, int precision_bits){
     mpfr_t quotient; 
 
     mpfr_init_set_d(quotient, QUOTIENT, MPFR_RNDN);         // quotient = (1 / 16)   
@@ -107,13 +108,13 @@ void ParallelBBPAlgorithm(mpfr_t pi, int num_iterations, int num_threads){
         block_size = (num_iterations + num_threads - 1) / num_threads;
         block_start = thread_id * block_size;
         block_end = (thread_id == num_threads - 1) ? num_iterations : block_start + block_size;
-        #pragma omp critical
-        printf("Soy TH%d, size:%d, ini:%d, fin:%d. \n", thread_id, block_size, block_start, block_end);
 
-        mpfr_init_set_ui(local_pi, 0, MPFR_RNDN);               // private thread pi
-        mpfr_init(dep_m);
+        mpfr_init2(local_pi, precision_bits);               // private thread pi
+        mpfr_set_ui(local_pi, 0, MPFR_RNDN);
+        mpfr_init2(dep_m, precision_bits);
         mpfr_pow_ui(dep_m, quotient, block_start, MPFR_RNDN);    // m = (1/16)^n                  
-        mpfr_inits(quot_a, quot_b, quot_c, quot_d, aux, NULL);
+        mpfr_inits2(precision_bits, quot_a, quot_b, quot_c, quot_d, aux, NULL);
+        
 
         //First Phase -> Working on a local variable        
         #pragma omp parallel for 
@@ -127,10 +128,9 @@ void ParallelBBPAlgorithm(mpfr_t pi, int num_iterations, int num_threads){
         #pragma omp critical
         mpfr_add(pi, pi, local_pi, MPFR_RNDN);
 
-        #pragma omp critical
-        mpfr_printf("Soy TH%d, Pi_local:%Re \n", thread_id, local_pi);
 
         //Clear thread memory
+        mpfr_free_cache();
         mpfr_clears(local_pi, dep_m, quot_a, quot_b, quot_c, quot_d, aux, NULL);   
     }
         

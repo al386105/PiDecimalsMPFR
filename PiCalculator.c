@@ -40,18 +40,20 @@ void checkDecimals(mpfr_t pi){
 
 
 void BBPAlgorithm(int num_threads, int precision){
-    //Set gmp float precision (in bits) and init pi
-
-    mpfr_set_default_prec(precision * 8); 
+    int num_iterations, precision_bits;
     mpfr_t pi;
+
+    precision_bits = precision * 8;
+    num_iterations = precision * 0.84;
+
+    //Set gmp float precision (in bits) and init pi
+    mpfr_set_default_prec(precision_bits); 
     mpfr_init_set_ui(pi, 0, MPFR_RNDN);
 
-    int num_iterations = precision * 0.84;
-    
     if(num_threads <= 1){ 
         SequentialBBPAlgorithm(pi, num_iterations);
     } else {
-        ParallelBBPAlgorithm(pi, num_iterations, num_threads);
+        ParallelBBPAlgorithm(pi, num_iterations, num_threads, precision_bits);
     }
     
     checkDecimals(pi);
@@ -60,16 +62,20 @@ void BBPAlgorithm(int num_threads, int precision){
 }
 
 void BellardAlgorithm(int num_threads, int precision){
-    //Set gmp float precision (in bits) and init pi
-    mpfr_set_default_prec(precision * 8); 
+    int num_iterations, precision_bits;
     mpfr_t pi;
+    
+    precision_bits = precision * 8;
+    num_iterations = precision / 3;
+
+    //Set gmp float precision (in bits) and init pi
+    mpfr_set_default_prec(precision_bits); 
     mpfr_init_set_ui(pi, 0, MPFR_RNDN);
-    int num_iterations = precision / 3;
 
     if(num_threads <= 1){ 
         SequentialBellardAlgorithm(pi, num_iterations);
     } else {
-        ParallelBellardAlgorithm(pi, num_iterations, num_threads);
+        ParallelBellardAlgorithm(pi, num_iterations, num_threads, precision_bits);
     }
     
     checkDecimals(pi);
