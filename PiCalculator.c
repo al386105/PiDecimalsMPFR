@@ -37,7 +37,12 @@ void checkDecimals(mpfr_t pi){
     //mpfr_printf("Pi: %Re \n", pi);
 }
 
-
+void checkMemoryError(mpfr_t pi){
+    if (pi == NULL){
+        printf("ERROR EN LA RESERVA DE MEMORIA. PRECISION DEMASIADO GRANDE \n");
+        exit(0);
+    }
+}
 
 void BBPAlgorithm(int num_threads, int precision){
     int num_iterations, precision_bits;
@@ -85,16 +90,20 @@ void BellardAlgorithm(int num_threads, int precision){
 
 
 void ChudnovskyAlgorithm(int num_threads, int precision){
-    //Set gmp float precision (in bits) and init pi
-    mpfr_set_default_prec(precision * 8); 
+    int num_iterations, precision_bits;
     mpfr_t pi;
+
+    precision_bits = precision * 8;
+    num_iterations = (precision + 14 - 1) / 14;  //Division por exceso
+
+    //Set gmp float precision (in bits) and init pi
+    mpfr_set_default_prec(precision_bits); 
     mpfr_init_set_ui(pi, 0, MPFR_RNDN);
-    int num_iterations = (precision + 14 - 1) / 14;  //Division por exceso
 
     if(num_threads <= 1){ 
         SequentialChudnovskyAlgorithm(pi, num_iterations);
     } else {
-        ParallelChudnovskyAlgorithm(pi, num_iterations, num_threads);
+        ParallelChudnovskyAlgorithm(pi, num_iterations, num_threads, precision_bits);
     }
     
     checkDecimals(pi);
