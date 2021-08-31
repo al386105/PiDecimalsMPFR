@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "bellardalgorithm.h": "c"
+        "bellardalgorithm.h": "c",
+        "chudnovskyalgorithm.h": "c"
     }
 }
