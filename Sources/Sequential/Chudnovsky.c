@@ -77,6 +77,7 @@ void Chudnovsky_algorithm(mpfr_t pi, int num_iterations){
         gettimeofday(&t1, NULL);
         Chudnovsky_iteration(pi, i, dep_a, dep_b, dep_c, aux);
         //Update dep_a:
+        //TODO COMPROBAR RESULTADOS
         factor_a = (12 * i);
         mpfr_set_ui(dep_a_dividend, factor_a + 2, MPFR_RNDN); //ESTO ES UN SOBRECOSTE BRUTAL (ES POR EL + n)???!!
 

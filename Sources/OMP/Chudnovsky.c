@@ -67,7 +67,7 @@ void Chudnovsky_algorithm_OMP(mpfr_t pi, int num_iterations, int num_threads, in
         block_size = (num_iterations + num_threads - 1) / num_threads;
         block_start = thread_id * block_size;
         block_end = block_start + block_size;
-        if (block_end > num_iterations) = block_end = num_iterations;
+        if (block_end > num_iterations) block_end = num_iterations;
         
         mpfr_inits2(precision_bits, local_pi, dep_a, dep_b, dep_c, dep_a_dividend, dep_a_divisor, aux, NULL);
         mpfr_set_ui(local_pi, 0, MPFR_RNDN);    // private thread pi
