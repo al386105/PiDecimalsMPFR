@@ -4,6 +4,7 @@
 #include <time.h>
 #include "../../Headers/Sequential/BBP.h"
 #include "../../Headers/Sequential/Bellard.h"
+#include "../../Headers/Sequential/Bellard_v1.h"
 #include "../../Headers/Sequential/Chudnovsky.h"
 #include "../../Headers/Common/Check_decimals.h"
 
@@ -49,12 +50,20 @@ void calculate_Pi(int algorithm, int precision){
     case 1:
         num_iterations = precision / 3;
         check_errors(precision, num_iterations);
-        printf("  Algorithm: Bellard \n");
+        printf("  Algorithm: Bellard (First version) \n");
         print_running_properties(precision, num_iterations);
-        Bellard_algorithm(pi, num_iterations);
+        Bellard_algorithm_v1(pi, num_iterations);
         break;
     
     case 2:
+        num_iterations = precision / 3;
+        check_errors(precision, num_iterations);
+        printf("  Algorithm: Bellard (Last version) \n");
+        print_running_properties(precision, num_iterations);
+        Bellard_algorithm(pi, num_iterations);
+        break;
+
+    case 3:
         num_iterations = (precision + 14 - 1) / 14;  //Division por exceso
         check_errors(precision, num_iterations);
         printf("  Algorithm: Chudnovsky (Last version) \n");
@@ -65,8 +74,9 @@ void calculate_Pi(int algorithm, int precision){
     default:
         printf("  Algorithm selected is not correct. Try with: \n");
         printf("      algorithm == 0 -> BBP  \n");
-        printf("      algorithm == 1 -> Bellard \n");
-        printf("      algorithm == 2 -> Chudnovsky  \n");
+        printf("      algorithm == 1 -> Bellard (First version) \n");
+        printf("      algorithm == 2 -> Bellard (Last versoin)\n");
+        printf("      algorithm == 3 -> Chudnovsky  \n");
         printf("\n");
         exit(-1);
         break;

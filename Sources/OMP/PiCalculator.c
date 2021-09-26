@@ -4,6 +4,7 @@
 #include <time.h>
 #include "../../Headers/OMP/BBP.h"
 #include "../../Headers/OMP/Bellard.h"
+#include "../../Headers/OMP/Bellard_v1.h"
 #include "../../Headers/OMP/Chudnovsky.h"
 #include "../../Headers/Common/Check_decimals.h"
 
@@ -55,12 +56,20 @@ void calculate_Pi_OMP(int algorithm, int precision, int num_threads){
     case 1:
         num_iterations = precision / 3;
         check_errors_OMP(precision, num_iterations, num_threads);
-        printf("  Algorithm: Bellard \n");
+        printf("  Algorithm: Bellard (First version) \n");
+        print_running_properties_OMP(precision, num_iterations, num_threads);
+        Bellard_algorithm_v1_OMP(pi, num_iterations, num_threads, precision_bits);
+        break;
+
+    case 2:
+        num_iterations = precision / 3;
+        check_errors_OMP(precision, num_iterations, num_threads);
+        printf("  Algorithm: Bellard (Last version) \n");
         print_running_properties_OMP(precision, num_iterations, num_threads);
         Bellard_algorithm_OMP(pi, num_iterations, num_threads, precision_bits);
         break;
     
-    case 2:
+    case 3:
         num_iterations = (precision + 14 - 1) / 14;  //Division por exceso
         check_errors_OMP(precision, num_iterations, num_threads);
         printf("  Algorithm: Chudnovsky (Last version) \n");
@@ -71,8 +80,9 @@ void calculate_Pi_OMP(int algorithm, int precision, int num_threads){
     default:
         printf("  Algorithm selected is not correct. Try with: \n");
         printf("      algorithm == 0 -> BBP  \n");
-        printf("      algorithm == 1 -> Bellard \n");
-        printf("      algorithm == 2 -> Chudnovsky  \n");
+        printf("      algorithm == 1 -> Bellard (First version) \n");
+        printf("      algorithm == 2 -> Bellard (Last version) \n");
+        printf("      algorithm == 3 -> Chudnovsky  \n");
         printf("\n");
         exit(-1);
         break;

@@ -39,6 +39,58 @@ void init_dep_a(mpfr_t dep_a, int block_start, int precision_bits){
     mpfr_clears(float_dividend, float_divisor, NULL);
 }
 
+/*
+ * This method provides an optimal distribution for each thread
+ * based on the Chudnovsky iterations analysis.
+ * It returns an array of three integers:
+ *   distribution[0] -> block size
+ *   distribution[1] -> block start
+ *   distribution[2] -> block end 
+ */
+int * get_thread_distribution(int num_threads, int thread_id, int num_iterations){
+    int * distribution, i, block_size, block_start, block_end, row, column; 
+    FILE * ratios_file;
+    float working_ratios[160][41];
+
+    //Open the working_ratios file 
+    ratios_file = fopen("Resources/working_ratios.txt", "r");
+    if(ratios_file == NULL){
+        printf("working_ratios.txt not found \n");
+        exit(-1);
+    } 
+
+    //Load the working_ratios matrix 
+    row = 0;
+    while (fscanf(ratios_file, "%f", &working_ratios[row][0]) == 1){
+        for (column = 1; column < 41; column++){
+            fscanf(ratios_file, "%f", &working_ratios[row][column]);
+        }
+        row++;
+    }
+
+    distribution = malloc(sizeof(int) * 3);
+    if(num_threads == 1){
+        distribution[0] = num_iterations;
+        distribution[1] = 0;
+        distribution[2] = num_iterations;
+        return distribution; 
+    }
+
+    block_size = working_ratios[thread_id][num_threads / 4] * num_iterations / 100;
+    block_start = 0;
+    for(i = 0; i < thread_id; i ++){
+        block_start += working_ratios[i][num_threads / 4] * num_iterations / 100;
+    }
+    block_end = block_start + block_size;
+    if (thread_id == num_threads -1) block_end = num_iterations;
+    
+    distribution[0] = block_size;
+    distribution[1] = block_start;
+    distribution[2] = block_end;
+
+    return distribution;
+}
+
 
 /*
  * Parallel Pi number calculation using the Chudnovsky algorithm
@@ -60,10 +112,16 @@ void Chudnovsky_algorithm_OMP(mpfr_t pi, int num_iterations, int num_threads, in
 
     #pragma omp parallel 
     {   
-        int thread_id, i, block_size, block_start, block_end, factor_a;
+        int thread_id, i, block_size, block_start, block_end, factor_a, * distribution;
         mpfr_t local_pi, dep_a, dep_a_dividend, dep_a_divisor, dep_b, dep_c, aux;
 
         thread_id = omp_get_thread_num();
+//        distribution = get_thread_distribution(num_threads, thread_id, num_iterations);
+//        block_size = distribution[0];
+//        block_start = distribution[1];
+//        block_end = distribution[2];
+//
+        
         block_size = (num_iterations + num_threads - 1) / num_threads;
         block_start = thread_id * block_size;
         block_end = block_start + block_size;

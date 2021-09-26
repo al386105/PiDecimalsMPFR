@@ -13,7 +13,7 @@ int incorrect_params(char* exec_name){
 int main(int argc, char **argv){    
 
     print_PiDecimals_title();
-    printf("  Sequential version! \n");
+    printf("  Parallel OMP version! \n");
     printf("\n");
 
     //Check the number of parameters are correct

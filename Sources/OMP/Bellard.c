@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <mpfr.h>
 #include <omp.h>
-#include "../../Headers/Sequential/Bellard.h"
+#include "../../Headers/Sequential/Bellard_v1.h"
 
 
 /*
@@ -44,7 +44,7 @@ void Bellard_algorithm_OMP(mpfr_t pi, int num_iterations, int num_threads, int p
         //First Phase -> Working on a local variable
         #pragma omp parallel for 
             for(i = thread_id; i < num_iterations; i+=num_threads){
-                Bellard_iteration(local_pi, i, dep_m, a, b, c, d, e, f, g, aux, dep_a, dep_b);
+                Bellard_iteration_v1(local_pi, i, dep_m, a, b, c, d, e, f, g, aux, dep_a, dep_b);
                 // Update dependencies for next iteration:
                 next_i = i + num_threads;
                 mpfr_mul_2exp(dep_m, ONE, 10 * next_i, MPFR_RNDN);

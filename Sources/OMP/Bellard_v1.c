@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <mpfr.h>
 #include <omp.h>
-#include "../../Headers/Sequential/Bellard.h"
+#include "../../Headers/Sequential/Bellard_v1.h"
 
 
 
@@ -12,7 +12,7 @@
  * The number of iterations is divided cyclically, 
  * so each thread calculates a part of Pi.  
  */
-void Bellard_algorithm_OMP(mpfr_t pi, int num_iterations, int num_threads, int precision_bits){
+void Bellard_algorithm_v1_OMP(mpfr_t pi, int num_iterations, int num_threads, int precision_bits){
     mpfr_t jump; 
 
     mpfr_init2(jump, precision_bits);
@@ -47,7 +47,7 @@ void Bellard_algorithm_OMP(mpfr_t pi, int num_iterations, int num_threads, int p
         if(num_threads % 2 != 0){
             #pragma omp parallel for 
                 for(i = thread_id; i < num_iterations; i+=num_threads){
-                    Bellard_iteration(local_pi, i, dep_m, a, b, c, d, e, f, g, aux, dep_a, dep_b);
+                    Bellard_iteration_v1(local_pi, i, dep_m, a, b, c, d, e, f, g, aux, dep_a, dep_b);
                     // Update dependencies for next iteration:
                     mpfr_mul(dep_m, dep_m, jump, MPFR_RNDN); 
                     mpfr_neg(dep_m, dep_m, MPFR_RNDN); 
@@ -57,13 +57,13 @@ void Bellard_algorithm_OMP(mpfr_t pi, int num_iterations, int num_threads, int p
         } else {
             #pragma omp parallel for
                 for(i = thread_id; i < num_iterations; i+=num_threads){
-                    Bellard_iteration(local_pi, i, dep_m, a, b, c, d, e, f, g, aux, dep_a, dep_b);
+                    Bellard_iteration_v1(local_pi, i, dep_m, a, b, c, d, e, f, g, aux, dep_a, dep_b);
                     // Update dependencies for next iteration:
                     mpfr_mul(dep_m, dep_m, jump, MPFR_RNDN);    
                     dep_a += jump_dep_a;
                     dep_b += jump_dep_b;  
                 }
-            }
+        }
 
         //Second Phase -> Accumulate the result in the global variable
         #pragma omp critical
