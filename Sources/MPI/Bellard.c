@@ -17,28 +17,26 @@
  * Finally, a collective reduction operation will be performed
  * using a user defined function in OperationsMPI. 
  */
-void Bellard_algorithm_v1_MPI(int num_procs, int proc_id, mpfr_t pi, 
+void Bellard_algorithm_MPI(int num_procs, int proc_id, mpfr_t pi, 
                                 int num_iterations, int num_threads, int precision_bits){
     int block_size, block_start, block_end, position, packet_size, d_elements;
-    mpfr_t local_proc_pi, jump;
+    mpfr_t local_proc_pi, ONE;
 
     block_size = (num_iterations + num_procs - 1) / num_procs;
     block_start = proc_id * block_size;
     block_end = block_start + block_size;
     if (block_end > num_iterations) block_end = num_iterations;
 
-    mpfr_inits2(precision_bits, jump, local_proc_pi, NULL);
+    mpfr_inits2(precision_bits, ONE, local_proc_pi, NULL);
     mpfr_set_ui(local_proc_pi, 0, MPFR_RNDN);
-    mpfr_set_ui(jump, 1, MPFR_RNDN); 
-    mpfr_div_ui(jump, jump, 1024, MPFR_RNDN);
-    mpfr_pow_ui(jump, jump, num_threads, MPFR_RNDN);
+    mpfr_set_ui(ONE, 1, MPFR_RNDN); 
 
     //Set the number of threads 
     omp_set_num_threads(num_threads);
 
     #pragma omp parallel 
     {
-        int thread_id, i, dep_a, dep_b, jump_dep_a, jump_dep_b;
+        int thread_id, i, dep_a, dep_b, jump_dep_a, jump_dep_b, next_i;
         mpfr_t local_thread_pi, dep_m, a, b, c, d, e, f, g, aux;
 
         thread_id = omp_get_thread_num();
@@ -50,33 +48,23 @@ void Bellard_algorithm_v1_MPI(int num_procs, int proc_id, mpfr_t pi,
         jump_dep_a = 4 * num_threads;
         jump_dep_b = 10 * num_threads;
         mpfr_init2(dep_m, precision_bits);
-        mpfr_set_ui(dep_m, 1, MPFR_RNDN);
-        mpfr_div_ui(dep_m, dep_m, 1024, MPFR_RNDN);
-        mpfr_pow_ui(dep_m, dep_m, block_start + thread_id, MPFR_RNDN);        // dep_m = ((-1)^n)/1024)
-        if((block_start + thread_id) % 2 != 0) mpfr_neg(dep_m, dep_m, MPFR_RNDN);                   
+        mpfr_mul_2exp(dep_m, ONE, 10 * (block_start + thread_id), MPFR_RNDN);
+        mpfr_div(dep_m, ONE, dep_m, MPFR_RNDN);
+        if((thread_id + block_start) % 2 != 0) mpfr_neg(dep_m, dep_m, MPFR_RNDN);                 
         mpfr_inits2(precision_bits, a, b, c, d, e, f, g, aux, NULL);
 
         //First Phase -> Working on a local variable
-        if(num_threads % 2 != 0){
-            #pragma omp parallel for 
-                for(i = block_start + thread_id; i < block_end; i+=num_threads){
-                    Bellard_iteration_v1(local_thread_pi, i, dep_m, a, b, c, d, e, f, g, aux, dep_a, dep_b);
-                    // Update dependencies for next iteration:
-                    mpfr_mul(dep_m, dep_m, jump, MPFR_RNDN); 
-                    mpfr_neg(dep_m, dep_m, MPFR_RNDN); 
-                    dep_a += jump_dep_a;
-                    dep_b += jump_dep_b;  
-                }
-        } else {
-            #pragma omp parallel for
-                for(i = block_start + thread_id; i < block_end; i+=num_threads){
-                    Bellard_iteration_v1(local_thread_pi, i, dep_m, a, b, c, d, e, f, g, aux, dep_a, dep_b);
-                    // Update dependencies for next iteration:
-                    mpfr_mul(dep_m, dep_m, jump, MPFR_RNDN);    
-                    dep_a += jump_dep_a;
-                    dep_b += jump_dep_b;  
-                }
-        }
+        #pragma omp parallel for 
+            for(i = block_start + thread_id; i < block_end; i+=num_threads){
+                Bellard_iteration_v1(local_thread_pi, i, dep_m, a, b, c, d, e, f, g, aux, dep_a, dep_b);
+                // Update dependencies for next iteration:
+                next_i = i + num_threads;
+                mpfr_mul_2exp(dep_m, ONE, 10 * next_i, MPFR_RNDN);
+                mpfr_div(dep_m, ONE, dep_m, MPFR_RNDN);
+                if (next_i % 2 != 0) mpfr_neg(dep_m, dep_m, MPFR_RNDN);
+                dep_a += jump_dep_a;
+                dep_b += jump_dep_b;  
+            }
 
         //Second Phase -> Accumulate the result in the global variable
         #pragma omp critical
@@ -111,7 +99,7 @@ void Bellard_algorithm_v1_MPI(int num_procs, int proc_id, mpfr_t pi,
 
     //Clear memory
     MPI_Op_free(&add_op);
-    mpfr_clears(local_proc_pi, jump, NULL);       
+    mpfr_clears(local_proc_pi, ONE, NULL);       
 
 }
 
