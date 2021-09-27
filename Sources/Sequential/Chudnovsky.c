@@ -56,7 +56,7 @@ void Chudnovsky_iteration(mpfr_t pi, int n, mpfr_t dep_a, mpfr_t dep_b,
  * Sequential Pi number calculation using the Chudnovsky algorithm
  * Single thread implementation
  */
-void Chudnovsky_algorithm(mpfr_t pi, int num_iterations){
+void Chudnovsky_algorithm_v2(mpfr_t pi, int num_iterations){
     int i, factor_a;
     mpfr_t dep_a, dep_a_dividend, dep_a_divisor, dep_b, dep_c, e, c, aux;
     

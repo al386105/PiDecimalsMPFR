@@ -5,7 +5,7 @@
 #include "../../Headers/OMP/BBP.h"
 #include "../../Headers/OMP/Bellard.h"
 #include "../../Headers/OMP/Bellard_v1.h"
-#include "../../Headers/OMP/Chudnovsky.h"
+#include "../../Headers/OMP/Chudnovsky_v2.h"
 #include "../../Headers/Common/Check_decimals.h"
 
 
@@ -74,7 +74,7 @@ void calculate_Pi_OMP(int algorithm, int precision, int num_threads){
         check_errors_OMP(precision, num_iterations, num_threads);
         printf("  Algorithm: Chudnovsky (Last version) \n");
         print_running_properties_OMP(precision, num_iterations, num_threads);
-        Chudnovsky_algorithm_OMP(pi, num_iterations, num_threads, precision_bits);
+        Chudnovsky_algorithm_v2_OMP(pi, num_iterations, num_threads, precision_bits);
         break;
     
     default:

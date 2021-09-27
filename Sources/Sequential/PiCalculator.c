@@ -5,7 +5,7 @@
 #include "../../Headers/Sequential/BBP.h"
 #include "../../Headers/Sequential/Bellard.h"
 #include "../../Headers/Sequential/Bellard_v1.h"
-#include "../../Headers/Sequential/Chudnovsky.h"
+#include "../../Headers/Sequential/Chudnovsky_v2.h"
 #include "../../Headers/Common/Check_decimals.h"
 
 
@@ -68,7 +68,7 @@ void calculate_Pi(int algorithm, int precision){
         check_errors(precision, num_iterations);
         printf("  Algorithm: Chudnovsky (Last version) \n");
         print_running_properties(precision, num_iterations);
-        Chudnovsky_algorithm(pi, num_iterations);
+        Chudnovsky_algorithm_v2(pi, num_iterations);
         break;
     
     default:

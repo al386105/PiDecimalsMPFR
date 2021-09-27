@@ -4,7 +4,7 @@
 #include <omp.h>
 #include <math.h>
 #include "mpi.h"
-#include "../../Headers/Sequential/Chudnovsky.h"
+#include "../../Headers/Sequential/Chudnovsky_v2.h"
 #include "../../Headers/MPI/OperationsMPI.h"
 
 #define A 13591409
@@ -12,7 +12,6 @@
 #define C 640320
 #define D 426880
 #define E 10005
-
 
 
 /*
@@ -84,7 +83,7 @@ void Chudnovsky_algorithm_v2_MPI(int num_procs, int proc_id, mpfr_t pi,
 
         mpfr_init2(local_thread_pi, precision_bits);    // private thread pi
         mpfr_set_ui(local_thread_pi, 0, MPFR_RNDN);
-        mpfr_inits2(precision_bits, dep_a, dep_b, dep_a_dividend, dep_a_divisor, aux, NULL);
+        mpfr_inits2(precision_bits, dep_a, dep_b, dep_c, dep_a_dividend, dep_a_divisor, aux, NULL);
         init_dep_a(dep_a, thread_block_start, precision_bits);
         mpfr_pow_ui(dep_b, c, thread_block_start, MPFR_RNDN);
         mpfr_set_ui(dep_c, B, MPFR_RNDN);
