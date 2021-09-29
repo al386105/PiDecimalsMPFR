@@ -55,7 +55,7 @@ void Bellard_algorithm(mpfr_t pi, int num_iterations){
         // Update dependencies for next iteration: 
         next_i = i + 1;
         mpfr_mul_2exp(dep_m, ONE, 10 * next_i, MPFR_RNDN);
-        mpfr_div(dep_m, ONE, dep_m, MPFR_RNDN);
+        mpfr_div(dep_m, ONE, dep_m, MPFR_RNDN);   //FIX: SOBRECOSTE
         if (next_i % 2 != 0) mpfr_neg(dep_m, dep_m, MPFR_RNDN);
         dep_a += 4;
         dep_b += 10;
